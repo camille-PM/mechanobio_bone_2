@@ -34,16 +34,16 @@ void Read_node_file(float nodes_position[NUMBER_NODES][3])
         infile>>comma;
         infile>>pos_z;
         nodes_position[node-1][2]=pos_z;
-        //cout<<"node: "<<node<<endl;
-        //cout<<"position x: "<<nodes_position[node-1][0]<<endl;
-        //cout<<"position y: "<<nodes_position[node-1][1]<<endl;
-        //cout<<"position z: "<<nodes_position[node-1][2]<<endl;
+//        cout<<"node: "<<node<<endl;
+//        cout<<"position x: "<<nodes_position[node-1][0]<<endl;
+//        cout<<"position y: "<<nodes_position[node-1][1]<<endl;
+//        cout<<"position z: "<<nodes_position[node-1][2]<<endl;
         //system("PAUSE");
     }
   
-    //cout<<"last node: "<<node<<endl;
-    //cout<<"position x: "<<nodes_position[node-1][0]<<endl;
-    //cout<<"position y: "<<nodes_position[node-1][1]<<endl;
-    //cout<<"position z: "<<nodes_position[node-1][2]<<endl;
+//    cout<<"last node: "<<node<<endl;
+//    cout<<"position x: "<<nodes_position[node-1][0]<<endl;
+//    cout<<"position y: "<<nodes_position[node-1][1]<<endl;
+//    cout<<"position z: "<<nodes_position[node-1][2]<<endl;
     //system("PAUSE");   
 }

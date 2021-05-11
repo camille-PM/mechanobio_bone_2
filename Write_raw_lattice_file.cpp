@@ -8,7 +8,7 @@
 
 using namespace std;
 
-void Write_raw_lattice_file(const char raw_cell[LATTICE_X][LATTICE_Y][LATTICE_Z], int td)
+void Write_raw_lattice_file(char const raw_cell[LATTICE_X][LATTICE_Y][LATTICE_Z], int td)
 {
 	// Write temp array into a raw file
 	ostringstream f;

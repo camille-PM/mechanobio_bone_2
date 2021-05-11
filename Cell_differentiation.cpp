@@ -96,7 +96,7 @@ void Cell_differentiation(char cells_dif[LATTICE_X][LATTICE_Y][LATTICE_Z],short 
 		if (iter<ACTIVITY_MAX)
         	cells_to_differentiate=int(cells_to_differentiate*0.3);
         else
-        	cells_to_differentiate=int(cells_to_differentiate*0.06); // lower activity after lateny period
+        	cells_to_differentiate=int(cells_to_differentiate*0.15); // lower activity after latency period
 		to_diff += cells_to_differentiate;
         
         mature_osteoblasts_apoptosis=int(mature_osteoblasts*apoptosis_rate_osteoblasts);
