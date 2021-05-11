@@ -15,7 +15,7 @@ void Read_stimulus(char stimulus_read[NUMBER_ELEMS],int elements_read[NUMBER_ELE
     float min_E_read;
     float HP_read;
    
-    ifstream infile("without_scaffold.dat");
+    ifstream infile("PCL_model.dat");
 	string temp;
  	string line;
    
@@ -34,32 +34,26 @@ void Read_stimulus(char stimulus_read[NUMBER_ELEMS],int elements_read[NUMBER_ELE
     float a,b,c,d,e,f;
     int j;
     
-    for (elem=0;elem<NUMBER_ELEMS;elem++)
+    for (elem=0;elem<NUMBER_ELEMS;elem++) 
     {
         min_E_read=0; // min ppal strain
         HP_read=0; // hydrostatic stress
         a=b=c=d=e=f=0;
         
-        for (j=0;j<4;j++)
-        {
-            infile>>temp;  //node
-            infile>>a;     //e1
-            //cout<<"E11: "<<a<<endl;
-            infile>>b;     //e2
-            infile>>c;     //e3
-            infile>>d; // s1
-            infile>>e; // s2
-            infile>>f;  // s3
-            
-            min_E_read += a;
-            HP_read += -(d+e+f)/3;
-            
-            infile>>temp;  //next element      
-            //system("PAUSE");
-        }
+        infile>>temp;  //node
+        infile>>a;     //e1
+        //cout<<"E11: "<<a<<endl;
+        infile>>b;     //e2
+        infile>>c;     //e3
+        infile>>d; // s1
+        infile>>e; // s2
+        infile>>f;  // s3
         
-        min_E_read=min_E_read/4;
-        HP_read=HP_read/4;
+        min_E_read = a;
+        HP_read = -(d+e+f)/3;
+        
+        infile>>temp;  //next element      
+        //system("PAUSE");
         
         // Define stimulus
         if (abs(HP_read)<0.0016 && abs(min_E_read)<0.0004) { // 0.04%; alternative for HP: 0.0016 MPa instead of 0.15 MPa.
@@ -67,18 +61,18 @@ void Read_stimulus(char stimulus_read[NUMBER_ELEMS],int elements_read[NUMBER_ELE
 		}
 		else {
 	        if (abs(HP_read)<0.15 && abs(min_E_read)<0.05) {
-	        	stimulus_read[elem]=2; // intramembranous (bone)
+	        	stimulus_read[elem]=2; // intramembranous
 			}
 			else {
 				if (HP_read<-0.15 && abs(min_E_read)<0.15) {
-					stimulus_read[elem]=4; // endochondral (cartilage)
+					stimulus_read[elem]=4; // endochondral
+
 				}
 				else {
 					stimulus_read[elem]=5; // fibrocartilage or connective	
 				}
 			}
 		}
-
     }
-     
+    
 }

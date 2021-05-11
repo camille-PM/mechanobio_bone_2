@@ -11,7 +11,7 @@ The "new" cell gets age 1, the "old" one keeps the same age.
 
 using namespace std;
 
-void Cell_mitosis(char cells_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z], int i1, int j1, int k1, int cellnumber,short age_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z])
+int Cell_mitosis(char cells_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z], int i1, int j1, int k1, int cellnumber,short age_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z])
 {
     int posibilities=0;
     int max_possibilities = 6;
@@ -505,6 +505,6 @@ void Cell_mitosis(char cells_mitosis[LATTICE_X][LATTICE_Y][LATTICE_Z], int i1, i
             } */
         } 
     }//end while
+	return mitosis;
 }//end function                                   
-
 

@@ -1,1 +1,1 @@
-abaqus job=without_scaffold ask_delete=OFF standard_parallel=all cpus=2 interactive
+abaqus job=PCL_model ask_delete=OFF standard_parallel=all cpus=4 interactive

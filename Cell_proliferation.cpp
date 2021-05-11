@@ -15,11 +15,13 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
     int i,j,k;
     int MSCs,fibroblasts,chondrocytes,mature_osteoblasts;
     int MSCs_to_prol,fibroblasts_to_prol,chondrocytes_to_prol,mature_osteoblasts_to_prol;
-    int MSC_proliferated, fibro_proliferated, chondro_proliferated, osteo_proliferated; // to store how may cells from each type actually proliferated
+	int MSC_tot,fibro_tot,chondro_tot,osteo_tot; // to store how many cells there were
+    int MSC_proliferated, fibro_proliferated, chondro_proliferated, osteo_proliferated; // to store how many cells from each type actually proliferated
     int proliferated;
     int r1,r2,r3;
     int cell; // cell type
     MSC_proliferated=fibro_proliferated=chondro_proliferated=osteo_proliferated=0;
+    MSC_tot=fibro_tot=chondro_tot=osteo_tot=0;	
         
     // Shuffle the elements to look them over in a random way (should not have a big impact though)
     int* elements = new int[NUMBER_ELEMS];
@@ -79,130 +81,128 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 				}
 			}
 		}
-			if (iter < ACTIVITY_MAX) {
-				MSCs_to_prol=int(MSCs*0.6);
-				fibroblasts_to_prol=int(fibroblasts*0.55);
-				chondrocytes_to_prol=int(chondrocytes*0.20);
-				mature_osteoblasts_to_prol=int(mature_osteoblasts*0.3);
-			}
-			else { // activity levels divided by 5 after 15 days
-				MSCs_to_prol=int(MSCs*0.12);
-				fibroblasts_to_prol=int(fibroblasts*0.11);
-				chondrocytes_to_prol=int(chondrocytes*0.04);
-				mature_osteoblasts_to_prol=int(mature_osteoblasts*0.06);
-			}        
-					 
-			/******************************************
-					 Proliferate MSCs
-			******************************************/
+		if (iter < ACTIVITY_MAX) {
+			MSCs_to_prol=int(MSCs*0.6);
+			fibroblasts_to_prol=int(fibroblasts*0.55);
+			chondrocytes_to_prol=int(chondrocytes*0.20);
+			mature_osteoblasts_to_prol=int(mature_osteoblasts*0.3);
+		}
+		else { // activity levels divided by 2 after 15 days
+			MSCs_to_prol=int(MSCs*0.3);
+			fibroblasts_to_prol=int(fibroblasts*0.275);
+			chondrocytes_to_prol=int(chondrocytes*0.1);
+			mature_osteoblasts_to_prol=int(mature_osteoblasts*0.15);
+		}
 
-			while (proliferated<MSCs_to_prol)
+		MSC_tot+=MSCs;
+		fibro_tot+=fibroblasts;
+		osteo_tot+=mature_osteoblasts;
+		chondro_tot+=chondrocytes;
+				 
+		/******************************************
+				 Proliferate MSCs
+		******************************************/
+
+		while (proliferated<MSCs_to_prol)
+		{
+			r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
+			r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
+			r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
+			i=imin+r1;
+			j=jmin+r2;
+			k=kmin+r3;
+			
+			if (lattice_point_element[i][j][k]==elem+1) // if still in same element
 			{
-			    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-		        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-		        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
+				if (cells_prol[i][j][k]==1) // if it is an MSC here
+				{
+					cell=1;
+					MSC_proliferated += Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
+					proliferated=proliferated+1;
+					//cout << "One cell proliferated!" << endl;               
+				}
+			}
+			//cout << proliferated*(elem+1) << endl;
+		}
+		proliferated=0;
+		 
+		/******************************************
+			Proliferate fibroblasts 
+		******************************************/
+		if (stimulus==5)
+		{
+			while (proliferated<fibroblasts_to_prol)
+			{
+				r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
+				r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
+				r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
 				i=imin+r1;
 				j=jmin+r2;
 				k=kmin+r3;
-				
-				if (lattice_point_element[i][j][k]==elem+1) // if still in same element
+				if (lattice_point_element[i][j][k]==elem+1)
 				{
-					if (cells_prol[i][j][k]==1) // if it is an MSC here
+					if (cells_prol[i][j][k]==5)
 					{
-						cell=1;
-						Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
-						proliferated=proliferated+1;
-						//cout << "One cell proliferated!" << endl;               
+						cell=5;
+						fibro_proliferated+=Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
+						proliferated=proliferated+1;                   
 					}
 				}
-				//cout << proliferated*(elem+1) << endl;
-			}
-	   
-			MSC_proliferated += proliferated;
-			proliferated=0;
-			 
-			/******************************************
-				Proliferate fibroblasts 
-			******************************************/
-			if (stimulus==5)
-			{
-				while (proliferated<fibroblasts_to_prol)
-				{
-				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
-					i=imin+r1;
-					j=jmin+r2;
-					k=kmin+r3;
-					if (lattice_point_element[i][j][k]==elem+1)
-					{
-						if (cells_prol[i][j][k]==5)
-						{
-							cell=5;
-							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
-							proliferated=proliferated+1;                   
-						}
-					}
-				}		  
-			}
+			}		  
+		}
+		proliferated=0;         
 
-			fibro_proliferated += proliferated;
-			proliferated=0;         
-
-			/******************************************
-				Proliferate chondrocytes
-			******************************************/
-			if (stimulus==4)
+		/******************************************
+			Proliferate chondrocytes
+		******************************************/
+		if (stimulus==4)
+		{
+			while (proliferated<chondrocytes_to_prol)
 			{
-				while (proliferated<chondrocytes_to_prol)
+				r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
+				r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
+				r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
+				i=imin+r1;
+				j=jmin+r2;
+				k=kmin+r3;
+				  
+				if (lattice_point_element[i][j][k]==elem+1)
 				{
-				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
-					i=imin+r1;
-					j=jmin+r2;
-					k=kmin+r3;
-					  
-					if (lattice_point_element[i][j][k]==elem+1)
+					if (cells_prol[i][j][k]==4)
 					{
-						if (cells_prol[i][j][k]==4)
-						{
-							cell=4;
-							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
-							proliferated=proliferated+1;                   
-						}
-					}
-				}						 
-			}     
-			 
-			chondro_proliferated += proliferated;
-			proliferated=0; 
-			 
-			/******************************************
-				Proliferate mature osteoblasts
-			******************************************/
-			if (stimulus==2)
-			{
-				while (proliferated<mature_osteoblasts_to_prol)
-				{
-				    r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
-			        r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
-			        r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
-					i=imin+r1;
-					j=jmin+r2;
-					k=kmin+r3;
-					if (lattice_point_element[i][j][k]==elem+1)
-					{
-						if (cells_prol[i][j][k]==2)
-						{
-							cell=2;
-							Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
-							proliferated=proliferated+1;                   
-						}
+						cell=4;
+						chondro_proliferated += Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
+						proliferated=proliferated+1;                   
 					}
 				}
-			}     
-			osteo_proliferated += proliferated;
+			}						 
+		}
+		proliferated=0; 
+		 
+		/******************************************
+			Proliferate mature osteoblasts
+		******************************************/
+		if (stimulus==2)
+		{
+			while (proliferated<mature_osteoblasts_to_prol)
+			{
+				r1=nrand(imax-imin+1); //r1=rand()%(imax-imin+1);
+				r2=nrand(jmax-jmin+1); //r2=rand()%(jmax-jmin+1);
+				r3=nrand(kmax-kmin+1); //r3=rand()%(kmax-kmin+1);
+				i=imin+r1;
+				j=jmin+r2;
+				k=kmin+r3;
+				if (lattice_point_element[i][j][k]==elem+1)
+				{
+					if (cells_prol[i][j][k]==2)
+					{
+						cell=2;
+						osteo_proliferated += Cell_mitosis(cells_prol,i,j,k,cell,age_prol);                        
+						proliferated=proliferated+1;               
+					}
+				}
+			}
+		}
     }// end for element
      
 
@@ -237,8 +237,9 @@ void Cell_proliferation(char cells_prol[LATTICE_X][LATTICE_Y][LATTICE_Z], short 
 
     // Write proliferation info to a file
     ofstream myfile;
-	myfile.open("proliferation.txt", ios::app); // in following order: MSCs, osteoblasts, chondrocytes, fibroblasts
-	myfile << MSC_proliferated << " " << osteo_proliferated << " " << chondro_proliferated << " " << fibro_proliferated << endl;
+	myfile.open("proliferation.txt", ios::app); // in following order: MSCs, osteoblasts, chondrocytes, fibroblasts (total and proliferated numbers)
+	myfile << MSC_tot << " " << MSC_proliferated << " " << osteo_tot << " " << osteo_proliferated << " " << 
+		chondro_tot << " " << chondro_proliferated << " " << fibro_tot << " " << fibro_proliferated << endl;
 	myfile.close();
     
 }

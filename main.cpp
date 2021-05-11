@@ -34,32 +34,34 @@ int main()
 	int (*lattice_point_element)[LATTICE_Y][LATTICE_Z] = new int[LATTICE_X][LATTICE_Y][LATTICE_Z]; //element number for each lattice point
 
 	float (*Young_modulus)[NUMBER_ITERATIONS] = new float[NUMBER_ELEMS][NUMBER_ITERATIONS];
-	float (*Poisson_ratio)[NUMBER_ITERATIONS] = new float[NUMBER_ELEMS][NUMBER_ITERATIONS];
+	float (*Poison_ratio)[NUMBER_ITERATIONS] = new float[NUMBER_ELEMS][NUMBER_ITERATIONS];
 	
 	// Initialization for first iterations (granulation tissue properties)
 	for(int elem=0; elem!=NUMBER_ELEMS; elem++) {
 		for(int i=0;i!=6;i++) {
 			Young_modulus[elem][i] = 0.2; 
-			Poisson_ratio[elem][i]=0.167;
+			Poison_ratio[elem][i]=0.167;
 		}
 	}
 	
 	unsigned int seed = (unsigned)time(NULL);
 	srand(seed); // seed for random numbers
 	cout<<"Random number seed: "<<seed<<endl;
-    
+	    
     int iteration;
     int i,j,k;
 	
     /****************************************************************************************
     	Set lattice points (12:scaffold, 13: plate, 11:bone, 0:free, age 666)
     *****************************************************************************************/
-	int a, b, c, d, h;
+	int a, b, c, d, h, r, s;
 	h = int(5/CELL_DIAMETER)+1; // bone extremity is 5 mm high
     a = int(3.75/CELL_DIAMETER)+1; // x axis bone marrow
 	b = int(4.4/CELL_DIAMETER)+1; // y axis bone marrow
 	c = int(7.5/CELL_DIAMETER)+1; // x axis bone
 	d = int(8.5/CELL_DIAMETER)+1; // y axis bone
+	r = int(10/CELL_DIAMETER); // scaffold outer radius 
+	s = int(16.5/CELL_DIAMETER)+1; // scaffold center y coordinate
 		
 	cout<<"Initialize lattice as scaffold, bone or empty"<<endl;
 	for (i=0;i<LATTICE_X;i++) {
@@ -69,8 +71,13 @@ int main()
                 lattice[i][j][k]=0; // first empty everywhere, then given regions will be filled appropriately
 
 				// fixation plate
-            	if (i-(LATTICE_X-1)/2<68 && -i+(LATTICE_X-1)/2<68 && j>(LATTICE_Y-1)/2+d && j<(LATTICE_Y-1)/2+d+5.6/CELL_DIAMETER) { // plate is 5.6 mm thick
+            	if (i-(LATTICE_X-1)/2<68 && -i+(LATTICE_X-1)/2<68 && j>(LATTICE_Y-1)/2+d-1 && j<(LATTICE_Y-1)/2+d-1+5.6/CELL_DIAMETER) { // plate is 5.6 mm thick
                 	lattice[i][j][k]=13; // relevant positions will be freed for tissue later on
+				}
+						                
+				// points in the cylinder containing the scaffold and modeled in ABAQUS are initialized as scaffold
+            	if (k>h && k<LATTICE_Z-h-1 && pow(i-(LATTICE_X-1)/2,2)+pow(j-s,2)<=pow(r,2)) {
+                	lattice[i][j][k]=12; // relevant positions will be freed for tissue later on
 				}
 				
 				if((k<=h || k>=LATTICE_Z-h)) {
@@ -156,14 +163,13 @@ int main()
         /**************************************************************************************
                                                Migration
         *****************************************************************************************/   
-        cout<<"Cell migration"<<endl;
+		cout<<"Cell migration"<<endl;
         Cell_migration(lattice,age_cells,lattice_point_element,iteration);
         
         /**************************************************************************************
                                      Write lattice content into files
         *****************************************************************************************/
         cout<<"Write results files"<<endl;
-//        Write_lattice_file_gnuplot(lattice,iteration); // txt files with one slice
         Write_raw_lattice_file(lattice, iteration); // full 3D model as binary file
         
         /**************************************************************************************
@@ -172,7 +178,7 @@ int main()
         if (iteration>5 && iteration<NUMBER_ITERATIONS-1) // no need to update model in the last iteration
         {
            cout<<"Update model"<<endl;
-           Update_model(lattice, Young_modulus, Poisson_ratio, iteration, element_local_min, element_local_max, lattice_point_element);
+           Update_model(lattice, Young_modulus, Poison_ratio, iteration, element_local_min, element_local_max, lattice_point_element);
         }
         /**************************************************************************************
                                            Increase cell age
@@ -211,7 +217,7 @@ int main()
 	delete[] lattice_point_element;
 
 	delete[] Young_modulus;
-	delete[] Poisson_ratio;
+	delete[] Poison_ratio;
 	
     //system("PAUSE");
     return 0;
